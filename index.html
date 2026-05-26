@@ -36,14 +36,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
 
         header h1 {
             font-size: 1.5rem;
             letter-spacing: 0.1em;
             font-weight: 300;
+            z-index: 100; /* メニューを開いた時もタイトルを見せるため */
         }
 
+        /* ナビゲーションメニュー */
         nav ul {
             list-style: none;
             display: flex;
@@ -59,6 +62,68 @@
 
         nav a:hover {
             color: var(--accent-blue);
+        }
+
+        /* ハンバーガーボタン（PCでは非表示） */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 2px;
+            background-color: #ffffff;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        /* スマートフォン向けレイアウト（768px以下） */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block; /* スマホでボタンを表示 */
+            }
+
+            nav ul {
+                position: fixed;
+                top: 0;
+                right: -100%; /* 初期状態は画面外に隠す */
+                width: 100%;
+                height: 100vh;
+                background-color: rgba(15, 28, 46, 0.95); /* ダークブルーの半透明 */
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.4s ease-in-out;
+                z-index: 99;
+            }
+
+            nav ul.active {
+                right: 0; /* メニュー表示状態 */
+            }
+
+            nav ul li {
+                margin: 1.5rem 0;
+            }
+
+            nav a {
+                font-size: 1.2rem;
+            }
+
+            /* ハンバーガーボタンのアニメーション（×印になる） */
+            .hamburger.active span:nth-child(1) {
+                transform: translateY(7px) rotate(45deg);
+            }
+            .hamburger.active span:nth-child(2) {
+                opacity: 0;
+            }
+            .hamburger.active span:nth-child(3) {
+                transform: translateY(-7px) rotate(-45deg);
+            }
         }
 
         /* ヒーローセクション */
@@ -101,11 +166,23 @@
             gap: 1.5rem;
         }
 
+        /* ギャラリーの要素（アニメーション初期状態） */
         .grid-item {
             position: relative;
             overflow: hidden;
             aspect-ratio: 4 / 3;
             background-color: var(--primary-blue);
+            
+            /* ここから下が浮き出るアニメーションの仕込み */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        /* JavaScriptで付与される表示用のクラス */
+        .grid-item.fade-in {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .grid-item img {
@@ -125,6 +202,16 @@
             max-width: 800px;
             margin: 4rem auto 6rem auto;
             padding: 0 5%;
+            
+            /* プロフィール文もふんわり出す場合 */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .statement-container.fade-in {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .statement-container h4 {
@@ -156,12 +243,19 @@
 
     <header>
         <h1>PHOTOGRAPHY</h1>
+        
+        <button class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
         <nav>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
+            <ul id="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -176,16 +270,16 @@
     <section class="gallery-container" id="gallery">
         <h3 class="section-title">Works</h3>
         <div class="grid">
-            <div class="grid-item"><img src="325324.jpg" alt="Work 1"></div>
-            <div class="grid-item"><img src="325323.jpg" alt="Work 2"></div>
-            <div class="grid-item"><img src="325322.jpg" alt="Work 3"></div>
-            <div class="grid-item"><img src="325321.jpg" alt="Work 4"></div>
-            <div class="grid-item"><img src="325320.jpg" alt="Work 5"></div>
-            <div class="grid-item"><img src="325319.jpg" alt="Work 6"></div>
+            <div class="grid-item animate-target"><img src="325324.jpg" alt="Work 1"></div>
+            <div class="grid-item animate-target"><img src="325323.jpg" alt="Work 2"></div>
+            <div class="grid-item animate-target"><img src="325322.jpg" alt="Work 3"></div>
+            <div class="grid-item animate-target"><img src="325321.jpg" alt="Work 4"></div>
+            <div class="grid-item animate-target"><img src="325320.jpg" alt="Work 5"></div>
+            <div class="grid-item animate-target"><img src="325319.jpg" alt="Work 6"></div>
         </div>
     </section>
 
-    <section class="statement-container" id="about">
+    <section class="statement-container animate-target" id="about">
         <h3 class="section-title">Profile / Artist Statement</h3>
         <h4>vivi=angerica</h4>
         <p>A Leica is always in my hands. Every time I release the shutter of this quiet, profound camera, I feel as though I am discovering a new sense of distance between myself and the world.</p>
@@ -197,6 +291,52 @@
     <footer>
         <p>&copy; 2026 Photography. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        /* === ハンバーガーメニューの開閉 === */
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // ボタンをクリックした時の処理
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // リンクをクリックしたらメニューを閉じる処理
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        /* === スクロール時のふわっと浮き出るアニメーション === */
+        // IntersectionObserverを使って要素が画面に入ったかを検知
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15 // 要素が15%見えたら発火
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // 画面に入ったら fade-in クラスを追加
+                    entry.target.classList.add('fade-in');
+                    // 一度表示されたら監視を解除（毎回アニメーションさせない場合）
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // .animate-target クラスを持つ要素をすべて監視対象にする
+        const targets = document.querySelectorAll('.animate-target');
+        targets.forEach(target => {
+            observer.observe(target);
+        });
+    </script>
 
 </body>
 </html>
